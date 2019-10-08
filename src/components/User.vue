@@ -11,27 +11,43 @@
 </template>
 
 <script>
-  export default{
-    data(){
-      return {
-        users:[]
-      }
-    },
-    created(){
-      this.getList()
-    },
-    methods: {
-      getList:function() {
-        this.postRequest('/user')
-          .then(resp=> {
-             resp.data.forEach(element => {
-               this.users.push(element);
-             })
-            console.log(res);
-        })
-      }
+import {fetchList} from '@/api/user'
+
+export default {
+  data () {
+    return {
+      users: [],
+      listQuery: {
+        pageNum: 1,
+        pageSize: 5,
+        keywords: null
+      },
     }
-  }
+  },
+  created () {
+    // this.getList()
+    this.getListt()
+  },
+  methods: {
+    getList: function () {
+      this.postRequest('http://localhost:8088/user/list')
+        .then(resp => {
+          resp.data.forEach(element => {
+            this.users.push(element)
+          })
+          console.log(resp.data)
+        })
+    },
+    getListt () {
+      fetchList(this.listQuery).then(resp => {
+        resp.data.forEach(element => {
+          this.users.push(element)
+        })
+        console.log(resp)
+      })
+    }
+  },
+}
 </script>
 
 <style scoped>
