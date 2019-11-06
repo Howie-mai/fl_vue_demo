@@ -9,11 +9,11 @@ axios.interceptors.request.use(config => {
 })
 axios.interceptors.response.use(data => {
   if (data.status && data.status == 200 && data.data.status == 500) {
-    Message.error({message: data.data.msg})
+    // Message.error({message: data.data.msg})
     return
   }
   if (data.data.msg) {
-    Message.success({message: data.data.msg})
+    // Message.success({message: data.data.msg})
   }
   return data
 }, err => {
@@ -33,7 +33,7 @@ axios.interceptors.response.use(data => {
   // return Promise.resolve(err);
 })
 
-let base = process.env.BASE_API
+let base = ''
 export const postRequest = (url, params) => {
   return axios({
     method: 'post',

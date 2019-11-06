@@ -134,7 +134,6 @@
 
 <script>
 import {fetchList, delUser} from '@/api/user'
-
 export default {
   data () {
     return {
