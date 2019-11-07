@@ -1,4 +1,4 @@
-<template>
+<template xmlns:v-bind="http://www.w3.org/1999/xhtml">
   <div>
     <el-container>
       <el-header style="padding: 0px;display:flex;justify-content:space-between;align-items: center">
@@ -416,7 +416,7 @@
             </el-col>
           </el-row>
           <el-row>
-            <el-col :span="6">
+            <el-col :span="5">
               <div>
                 <el-form-item label="职位:" prop="posid">
                   <el-select placeholder="请选择职位" size="mini" style="width: 150px" v-model="emp.posid">
@@ -430,7 +430,7 @@
                 </el-form-item>
               </div>
             </el-col>
-            <el-col :span="5">
+            <el-col :span="4">
               <div>
                 <el-form-item label="职称:" prop="joblevelid">
                   <el-select placeholder="请选择职称" size="mini" style="width: 120px" v-model="emp.joblevelid">
@@ -444,7 +444,7 @@
                 </el-form-item>
               </div>
             </el-col>
-            <el-col :span="6">
+            <el-col :span="8">
               <div>
                 <el-form-item label="所属部门:" prop="departmentid">
                   <!--<el-popover-->
@@ -461,6 +461,7 @@
                   <!--</el-popover>-->
                   <!--编辑 添加-->
                   <el-cascader
+                    placeholder="请选择部门"
                     :options="deps"
                     :props="{ checkStrictly: true }"
                     @change="handleChange"
