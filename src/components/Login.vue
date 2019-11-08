@@ -10,12 +10,15 @@
       <el-input auto-complete="off" placeholder="密码"
                 type="password" v-model="loginForm.password"></el-input>
     </el-form-item>
-    <el-checkbox class="login_remember" label-position="left"
-                 v-model="checked">记住密码
+    <el-form-item>
+    <el-checkbox class="login_remember" label-position="right"
+                 v-model="checked" name="rememberMe">记住密码
     </el-checkbox>
+    </el-form-item>
     <el-form-item style="width: 100%">
       <el-button @click="submitClick" style="width: 100%" type="primary">登录</el-button>
     </el-form-item>
+
   </el-form>
 </template>
 <script>
@@ -42,7 +45,8 @@
         this.loading = true;
         userLogin({
           username: this.loginForm.username,
-          password: this.loginForm.password
+          password: this.loginForm.password,
+          rememberMe: this.checked
         }).then(resp => {
           _this.loading = false
           if (resp && resp.status == 200) {
