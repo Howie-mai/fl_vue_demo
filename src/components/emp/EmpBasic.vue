@@ -22,13 +22,14 @@
           </el-button>
         </div>
         <div style="margin-left: 5px;margin-right: 20px;display: inline">
+
           <el-upload
             :before-upload="beforeFileUpload"
             :disabled="fileUploadBtnText=='正在导入'"
             :on-error="fileUploadError"
             :on-success="fileUploadSuccess"
             :show-file-list="false" accept="application/vnd.ms-excel"
-            action="/employee/basic/importEmp" style="display: inline">
+            action="/emp/importEmp" style="display: inline">
             <el-button :loading="fileUploadBtnText=='正在导入'" size="mini" type="success"><i class="fa fa-lg fa-level-up"
                                                                                           style="margin-right: 5px"></i>{{fileUploadBtnText}}
             </el-button>
@@ -40,6 +41,10 @@
                      type="primary">
             添加员工
           </el-button>
+          <div style="font-size:10px;color: red"
+               v-for="item in errorList">
+            <div>{{item}}</div>
+          </div>
         </div>
       </el-header>
       <el-main style="padding-left: 0px;padding-top: 0px">
@@ -416,7 +421,7 @@
             </el-col>
           </el-row>
           <el-row>
-            <el-col :span="5">
+            <el-col :span="6">
               <div>
                 <el-form-item label="职位:" prop="posid">
                   <el-select placeholder="请选择职位" size="mini" style="width: 150px" v-model="emp.posid">
@@ -430,7 +435,7 @@
                 </el-form-item>
               </div>
             </el-col>
-            <el-col :span="4">
+            <el-col :span="5">
               <div>
                 <el-form-item label="职称:" prop="joblevelid">
                   <el-select placeholder="请选择职称" size="mini" style="width: 120px" v-model="emp.joblevelid">
@@ -444,7 +449,7 @@
                 </el-form-item>
               </div>
             </el-col>
-            <el-col :span="8">
+            <el-col :span="6">
               <div>
                 <el-form-item label="所属部门:" prop="departmentid">
                   <!--<el-popover-->
@@ -461,11 +466,14 @@
                   <!--</el-popover>-->
                   <!--编辑 添加-->
                   <el-cascader
-                    placeholder="请选择部门"
+                    style="width: 150px"
+                    :size="mini"
                     :options="deps"
+                    :show-all-levels="false"
                     :props="{ checkStrictly: true }"
                     @change="handleChange"
                     clearable
+                    placeholder="请选择部门"
                     v-model="emp.departmentid">
                   </el-cascader>
                 </el-form-item>
@@ -619,8 +627,7 @@
   </div>
 </template>
 <script>
-  import {delEmp, delEmpList, fetchBasicList, fetchEmpList, getEmp, saveEmp, updateEmp} from '@/api/emp'
-  import {Message} from 'element-ui'
+  import {delEmp, delEmpList, exportExcel, fetchBasicList, fetchEmpList, getEmp, saveEmp, updateEmp} from '@/api/emp'
 
   export default {
     data() {
@@ -663,6 +670,7 @@
           isLeaf: 'leaf',
           children: 'children'
         },
+        errorList:[],
         dialogVisible: false,
         tableLoading: false,
         advanceSearchViewVisible: false,
@@ -747,18 +755,28 @@
         if (response) {
           this.$message({type: response.status, message: response.msg});
         }
+        if(response.status == 500){
+          this.errorList = response.obj
+        }else {
+          this.errorList = []
+        }
         this.loadEmps();
         this.fileUploadBtnText = '导入数据';
       },
       fileUploadError(err, file, fileList) {
-        this.$message({type: 'error', message: "导入失败!"});
+        console.log("123")
+        var data = err.toString().replace("Error:")
+        var jsonData = JSON.parse(data)
+        console.log(jsonData)
+        this.$message({type: 'error', message: "导入失败"});
         this.fileUploadBtnText = '导入数据';
       },
       beforeFileUpload(file) {
         this.fileUploadBtnText = '正在导入';
       },
       exportEmps() {
-        window.open("/employee/basic/exportEmp", "_parent");
+          window.open('/emp/exportEmp', "_parent")
+        // window.location.href = '/emp/exportEmpV2/'
       },
       cancelSearch() {
         this.advanceSearchViewVisible = false;
@@ -803,9 +821,9 @@
             this.tableLoading = false;
             if (resp && resp.data.status == 200) {
               this.loadEmps();
-              Message.success(resp.data.msg)
+              this.Message.success(resp.data.msg)
             } else {
-              Message.error(resp.data.msg)
+              this.Message.error(resp.data.msg)
             }
           })
         }).catch(() => {
@@ -819,8 +837,10 @@
           _this.tableLoading = false;
           if (resp && resp.status == 200) {
             _this.loadEmps();
+            _this.Message.success(resp.data.msg)
+          }else {
+            _this.Message.error(resp.data.msg)
           }
-          Message.success(resp.data.msg)
         })
       },
       keywordsChange(val) {
@@ -864,9 +884,9 @@
                   _this.dialogVisible = false;
                   _this.emptyEmpData();
                   _this.loadEmps();
-                  Message.success(resp.data.msg)
+                  _this.Message.success(resp.data.msg)
                 } else {
-                  Message.error(resp.data.msg)
+                  _this.Message.error(resp.data.msg)
                 }
               })
             } else {
@@ -878,9 +898,9 @@
                   _this.dialogVisible = false;
                   _this.emptyEmpData();
                   _this.loadEmps();
-                  Message.success(resp.data.msg)
+                  _this.Message.success(resp.data.msg)
                 } else {
-                  Message.error(resp.data.msg)
+                  _this.Message.error(resp.data.msg)
                 }
 
               })

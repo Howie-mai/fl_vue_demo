@@ -59,24 +59,24 @@
 <script>
   export default{
     mounted: function () {
-     this.devMsg();
-//       this.loadNF();
+     // this.devMsg();
+      this.loadNF();
     },
     methods: {
-      // loadNF(){
-      //   var _this = this;
-      //   this.getRequest("/chat/sysmsgs").then(resp=> {
-      //     var isDot = false;
-      //     resp.data.forEach(msg=> {
-      //       if (msg.state == 0) {
-      //         isDot = true;
-      //       }
-      //     })
-      //     _this.$store.commit('toggleNFDot', isDot);
-      //   })
-      // },
+      loadNF(){
+        var _this = this;
+        this.getRequest("/chat/sysmsgs").then(resp=> {
+          var isDot = false;
+          resp.data.forEach(msg=> {
+            if (msg.state == 0) {
+              isDot = true;
+            }
+          })
+          _this.$store.commit('toggleNFDot', isDot);
+        })
+      },
       goChat(){
-        this.$router.push({path: '/chat'});
+        this.$router.push({path: '/Chat'});
       },
       devMsg(){
         this.$alert('为了确保所有的小伙伴都能看到完整的数据演示，数据库只开放了查询权限和部分字段的更新权限，其他权限都不具备，完整权限的演示需要大家在自己本地部署后，换一个正常的数据库用户后即可查看，这点请大家悉知!', '友情提示', {

@@ -28,3 +28,7 @@ export function delEmpList(ids) {
   return jsonRequest('/emp/deleteList/', ids)
 }
 
+export function exportExcel() {
+  return getRequest('/emp/exportEmp/')
+}
+

@@ -1,5 +1,6 @@
 import {getHrMenu} from '../api/menu'
 import {Message} from 'element-ui'
+import {getRequest} from "./api";
 
 export const isNotNullORBlank = (...args) => {
   for (var i = 0; i < args.length; i++) {

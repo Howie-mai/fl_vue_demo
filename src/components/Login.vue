@@ -12,7 +12,7 @@
     </el-form-item>
     <el-form-item>
     <el-checkbox class="login_remember" label-position="right"
-                 v-model="checked" name="rememberMe">记住密码
+                 v-model="checked" name="rememberMe">3天内自动登录
     </el-checkbox>
     </el-form-item>
     <el-form-item style="width: 100%">

@@ -53,6 +53,9 @@ export default new Vuex.Store({
       context.state.stomp = Stomp.over(new SockJS("/ws/endpointChat"));
       context.state.stomp.connect({}, frame=> {
         context.state.stomp.subscribe("/user/queue/chat", message=> {
+          /*
+          * 接受聊天信息
+          */
           var msg = JSON.parse(message.body);
           var oldMsg = window.localStorage.getItem(context.state.user.username + "#" + msg.from);
           if (oldMsg == null) {
@@ -76,6 +79,9 @@ export default new Vuex.Store({
           }
         });
         context.state.stomp.subscribe("/topic/nf", message=> {
+          /*
+          * 接受系统信息
+          */
           context.commit('toggleNFDot', true);
         });
       }, failedMsg=> {

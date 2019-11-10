@@ -14,6 +14,7 @@ import {initMenu} from './utils/utils'
 import {isNotNullORBlank} from './utils/utils'
 import './utils/filter_utils'
 import 'font-awesome/css/font-awesome.min.css'
+import {Message} from 'element-ui'
 
 Vue.config.productionTip = false
 Vue.use(ElementUI)
@@ -23,6 +24,7 @@ Vue.prototype.postRequest = postRequest
 Vue.prototype.deleteRequest = deleteRequest
 Vue.prototype.putRequest = putRequest
 Vue.prototype.isNotNullORBlank = isNotNullORBlank
+Vue.prototype.Message = Message
 
 router.beforeEach((to, from, next) => {
     //判断目标是不是Login页面，是的话z直接放行

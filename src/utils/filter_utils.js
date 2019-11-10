@@ -2,6 +2,9 @@ import Vue from 'vue'
 Vue.filter("formatDate", formatDate);
 Vue.prototype.formatDate = formatDate;
 function formatDate(value) {
+  if(value == null){
+    return;
+  }
   var date = new Date(value);
   var year = date.getFullYear();
   var month = date.getMonth() + 1;
