@@ -57,10 +57,6 @@ export default new Vuex.Store({
           /*
           * 接受聊天信息
           */
-          console.log("recevice:-----start")
-          console.log(message)
-          console.log(message.body)
-          console.log("recevice:-----end")
           var msg = JSON.parse(message.body)
           var oldMsg = window.localStorage.getItem(context.state.user.username + '#' + msg.from)
           if (oldMsg == null) {

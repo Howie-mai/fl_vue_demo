@@ -19,15 +19,21 @@
           <p v-show="currentFriend.name == null"> 点击左侧头像跟别人聊天吧</p>
           <template v-for="msg in msgList">
             <!--发送来的消息-->
+            <div v-if="msg.from == currentFriend.username">
+              <el-tag type="info" size="mini" style="color: black;font-size: 5px">
+                {{msg.time}}
+              </el-tag>
+
             <div
               style="display: flex;justify-content: flex-start;align-items: center;box-sizing: border-box;"
-              v-if="msg.from==currentFriend.username">
+              >
 
               <img :src="currentFriend.userface" class="userfaceImg">
               <div
                 style="display: inline-flex;border-style: solid;border-width: 1px;border-color: #20a0ff;border-radius: 5px;padding: 5px 8px 5px 8px">
                 {{msg.msg}}
               </div>
+            </div>
             </div>
             <div v-if="msg.from!=currentFriend.username && currentFriend.username != null"
                  style="display: flex;justify-content: flex-end;align-items: center;box-sizing: border-box;">
@@ -66,14 +72,6 @@ export default {
   computed: {
     msgList: {
       get: function () {
-        var newMsgList = this.$store.state.msgList
-          console.log("newMsgList-----start" )
-        newMsgList.forEach(data =>{
-          // if(data.from != this.$store.state.user.username && data.to == this.$store.state.user.username){
-            console.log(data)
-          // }
-        })
-          console.log("newMsgList-----end" )
         return this.$store.state.msgList
       }
     },
