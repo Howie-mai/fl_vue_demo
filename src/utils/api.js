@@ -1,6 +1,7 @@
 import axios from 'axios'
 import {Message} from 'element-ui'
 
+
 axios.interceptors.request.use(config => {
   return config
 }, err => {
@@ -94,9 +95,10 @@ export const deleteRequest = (url) => {
     url: `${base}${url}`
   })
 }
-export const getRequest = (url) => {
+export const getRequest = (url, params) => {
   return axios({
     method: 'get',
-    url: `${base}${url}`
+    url: `${base}${url}`,
+    data: params
   })
 }

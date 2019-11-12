@@ -26,6 +26,24 @@ Vue.prototype.putRequest = putRequest
 Vue.prototype.isNotNullORBlank = isNotNullORBlank
 Vue.prototype.Message = Message
 
+Vue.prototype.getNowTime = function() {
+  var date = new Date();
+  var seperator1 = "-";
+  var year = date.getFullYear();
+  var month = date.getMonth() + 1;
+  var strDate = date.getDate();
+  if (month >= 1 && month <= 9) {
+    month = "0" + month;
+  }
+  if (strDate >= 0 && strDate <= 9) {
+    strDate = "0" + strDate;
+  }
+  var hour = date.getHours();
+  var min = date.getMinutes();
+  var currentdate = year + seperator1 + month + seperator1 + strDate + " " + hour + ":" + min;
+  return currentdate;
+};
+
 router.beforeEach((to, from, next) => {
     //判断目标是不是Login页面，是的话z直接放行
     if (to.name == 'Login') {

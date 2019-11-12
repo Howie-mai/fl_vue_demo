@@ -12,7 +12,7 @@
   export default {
     data() {
       return {
-        activeName: 'notification'
+        activeName: 'notification',
       };
     },
     methods: {

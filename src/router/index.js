@@ -5,6 +5,7 @@ import UpdateUser from '@/components/user/updateUser'
 import Login from '@/components/Login'
 import Home from '@/components/Home'
 import AddUser from '@/components/user/addUser'
+import Chat from '@/components/chat/Chat'
 
 Vue.use(Router)
 
@@ -23,7 +24,19 @@ export default new Router({
       hidden: true,
       meta: {
         requireAuth: true
-      }
+      },
+      children: [
+        {
+          path: '/chat',
+          name: '消息',
+          component: Chat,
+          hidden: true,
+          meta: {
+            keepAlive: false,
+            requireAuth: true
+          }
+        }
+      ]
     },
     {
       path: '/user',

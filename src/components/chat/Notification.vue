@@ -19,7 +19,7 @@
                     v-if="msg.state==0"></div>
                 </div>
                 <span style="width: 600px;text-align: left">{{msg.msgContent.title}}</span>
-                <el-tag>{{msg.msgContent.createDate|formatDate}}</el-tag>
+                <el-tag>{{msg.msgContent.createdate|formatDate}}</el-tag>
               </div>
             </template>
             <div
@@ -74,87 +74,93 @@
   </div>
 </template>
 <script>
-  export default{
-    data(){
-      return {
-        dialogVisible: false,
-        dialogLoading: false,
-        title: '',
-        message: '',
-        mid: -1,
-        sysmsgs: []
-      }
-    },
-    mounted() {
-      this.initSysMsgs();
-    },
-    computed: {
-      isAdmin: function () {
-        var roles = this.$store.state.user.roles;
-        var isAdmin = false;
-        roles.forEach(role=> {
-          if (role.name == 'ROLE_admin') {
-            isAdmin = true;
-          }
-        })
-        return isAdmin;
-      }
-    },
-    methods: {
-      handleChange(newVal){
-        if (newVal == '') {
-          return;
-        }
-        var _this = this;
-        this.putRequest("/chat/markread", {flag: this.mid}).then(resp=> {
-          if (resp && resp.status == 200) {
-            _this.initSysMsgs();
-          }
-        })
-      },
-      initSysMsgs(){
-        var _this = this;
-        this.getRequest("/chat/sysmsgs").then(resp=> {
-          _this.sysmsgs = resp.data;
-          var isDot = false;
-          _this.sysmsgs.forEach(msg=> {
-            if (msg.state == 0) {
-              isDot = true;
-            }
-          })
-          _this.$store.commit('toggleNFDot', isDot);
-        })
-      },
-      allRead(){
-        var _this = this;
-        this.putRequest("/chat/markread", {flag: -1}).then(resp=> {
-          if (resp && resp.status == 200) {
-            _this.$store.commit('toggleNFDot', false);
-            _this.initSysMsgs();
-          }
-        })
-      },
-      sendNFMsg(){
-        this.dialogLoading = true;
-        var _this = this;
-        this.postRequest("/chat/nf", {message: this.message, title: this.title}).then(resp=> {
-          _this.dialogLoading = false;
-          if (resp && resp.status == 200) {
-            var data = resp.data;
-            
-            if (data.status == 'success') {
-              _this.$store.state.stomp.send("/ws/nf", {}, '');
-              _this.initSysMsgs();
-              _this.cancelSend();
-            }
-          }
-        })
-      },
-      cancelSend(){
-        this.dialogVisible = false;
-        this.title = '';
-        this.message = '';
+import {fetchMsgList} from '@/api/sysmsg'
+
+export default {
+  data () {
+    return {
+      dialogVisible: false,
+      dialogLoading: false,
+      title: '',
+      message: '',
+      mid: -1,
+      sysmsgs: [],
+      msgQuery: {
+        pageNum:1,
+        pageSize: 15
       }
     }
+  },
+  mounted () {
+    this.initSysMsgs()
+  },
+  computed: {
+    isAdmin: function () {
+      var roles = this.$store.state.user.roles
+      var isAdmin = false
+      roles.forEach(role => {
+        if (role.name == 'ROLE_admin') {
+          isAdmin = true
+        }
+      })
+      return isAdmin
+    }
+  },
+  methods: {
+    handleChange (newVal) {
+      if (newVal == '') {
+        return
+      }
+      var _this = this
+      this.putRequest('/chat/markread', {flag: this.mid}).then(resp => {
+        if (resp && resp.status == 200) {
+          _this.initSysMsgs()
+        }
+      })
+    },
+    initSysMsgs () {
+      var _this = this
+      fetchMsgList(this.msgQuery).then(resp => {
+        _this.sysmsgs = resp.data.obj
+        var isDot = false
+        _this.sysmsgs.forEach(msg => {
+          if (msg.state == 0) {
+            isDot = true
+          }
+        })
+        _this.$store.commit('toggleNFDot', isDot)
+      })
+    },
+    allRead () {
+      var _this = this
+      this.putRequest('/chat/markread', {flag: -1}).then(resp => {
+        if (resp && resp.status == 200) {
+          _this.$store.commit('toggleNFDot', false)
+          _this.initSysMsgs()
+        }
+      })
+    },
+    sendNFMsg () {
+      this.dialogLoading = true
+      var _this = this
+      this.postRequest('/chat/nf', {message: this.message, title: this.title}).then(resp => {
+        _this.dialogLoading = false
+        if (resp && resp.status == 200) {
+          var data = resp.data
+
+          if (data.status == 'success') {
+            _this.$store.state.stomp.send('/ws/nf', {}, '')
+            _this.initSysMsgs()
+            _this.cancelSend()
+          }
+        }
+      })
+    },
+    cancelSend () {
+      this.dialogVisible = false
+      this.title = ''
+      this.message = ''
+    }
   }
+}
 </script>

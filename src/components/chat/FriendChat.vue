@@ -1,4 +1,4 @@
-<template>
+<template xmlns:v-bind="http://www.w3.org/1999/xhtml">
   <div>
     <el-container>
       <el-aside width="160px">
@@ -16,19 +16,20 @@
             </el-tag>
             聊天中
           </p>
+          <p v-show="currentFriend.name == null"> 点击左侧头像跟别人聊天吧</p>
           <template v-for="msg in msgList">
             <!--发送来的消息-->
             <div
               style="display: flex;justify-content: flex-start;align-items: center;box-sizing: border-box;"
               v-if="msg.from==currentFriend.username">
+
               <img :src="currentFriend.userface" class="userfaceImg">
               <div
                 style="display: inline-flex;border-style: solid;border-width: 1px;border-color: #20a0ff;border-radius: 5px;padding: 5px 8px 5px 8px">
                 {{msg.msg}}
               </div>
             </div>
-            <!--发出去的消息-->
-            <div v-if="msg.from!=currentFriend.username"
+            <div v-if="msg.from!=currentFriend.username && currentFriend.username != null"
                  style="display: flex;justify-content: flex-end;align-items: center;box-sizing: border-box;">
               <div
                 style="display: inline-flex;border-style: solid;border-width: 1px;border-color: #20a0ff;border-radius: 5px;padding: 5px 8px 5px 8px;margin-right: 3px;background-color: #9eea6a">
@@ -51,78 +52,96 @@
   </div>
 </template>
 <script>
-  export default{
-    data(){
-      return {
-        hrs: [],
-        msg: '',
-        currentUser: this.$store.state.user,
-        currentFriend: {}
-      }
-    },
-    computed: {
-      msgList: {
-        get: function () {
-          return this.$store.state.msgList
-        }
-      },
-      isDotMap: {
-        get: function () {
-          return this.$store.state.isDotMap
-        }
-      }
-    },
-    watch: {
-      msgList(){
-        document.getElementById('chatDiv').scrollTop = document.getElementById('chatDiv').scrollHeight;
-      }
-    },
-    methods: {
-      sendMsg(){
-        var oldMsg = window.localStorage.getItem(this.$store.state.user.username + "#" + this.currentFriend.username);
-        if (oldMsg == null) {
-          oldMsg = [];
-          oldMsg.push({msg: this.msg, from: this.$store.state.user.username});
-          window.localStorage.setItem(this.$store.state.user.username + "#" + this.currentFriend.username, JSON.stringify(oldMsg))
-        } else {
-          var oldMsgJson = JSON.parse(oldMsg);
-          oldMsgJson.push({msg: this.msg, from: this.$store.state.user.username});
-          window.localStorage.setItem(this.$store.state.user.username + "#" + this.currentFriend.username, JSON.stringify(oldMsgJson))
-        }
-        this.$store.state.stomp.send("/ws/chat", {}, this.msg + ";" + this.currentFriend.username);
-        this.msg = '';
-        this.updateChatDiv();
-      },
-      updateChatDiv(){
-        var oldMsg = window.localStorage.getItem(this.currentUser.username + "#" + this.currentFriend.username);
-        if (oldMsg == null) {
-          this.$store.commit('updateMsgList', [])
-        } else {
-          this.$store.commit('updateMsgList', JSON.parse(oldMsg))
-        }
-      },
-      toggleFriend(hr){
-        //切换数据
-        if (hr == this.currentFriend) {
-          return;
-        }
-        this.currentFriend = hr;
-        this.$store.commit('updateCurrentFriend', hr);
-        this.updateChatDiv();
-        this.$store.commit("removeValueDotMap", "isDot#" + this.currentUser.username + "#" + hr.username);
-        document.getElementById('chatDiv').scrollTop = document.getElementById('chatDiv').scrollHeight;
-      },
-      loadHrs(){
-        var _this = this;
-        this.getRequest("/chat/hrs").then(resp=> {
-          _this.hrs = resp.data;
-        })
-      }
-    },
-    mounted: function () {
-      this.loadHrs();
+import {fetchHrList} from '@/api/hr'
+
+export default {
+  data () {
+    return {
+      hrs: [],
+      msg: '',
+      currentUser: this.$store.state.user,
+      currentFriend: {},
     }
+  },
+  computed: {
+    msgList: {
+      get: function () {
+        var newMsgList = this.$store.state.msgList
+          console.log("newMsgList-----start" )
+        newMsgList.forEach(data =>{
+          // if(data.from != this.$store.state.user.username && data.to == this.$store.state.user.username){
+            console.log(data)
+          // }
+        })
+          console.log("newMsgList-----end" )
+        return this.$store.state.msgList
+      }
+    },
+    isDotMap: {
+      get: function () {
+        return this.$store.state.isDotMap
+      }
+    }
+  },
+  watch: {
+    msgList () {
+      document.getElementById('chatDiv').scrollTop = document.getElementById('chatDiv').scrollHeight
+    }
+  },
+  methods: {
+    saveMsg(){
+      var oldMsg = window.localStorage.getItem(this.$store.state.user.username + '#' + this.currentFriend.username)
+      if (oldMsg == null) {
+        oldMsg = []
+        oldMsg.push({msg: this.msg, from: this.$store.state.user.username,time: this.getNowTime(),to:this.currentFriend.username})
+        window.localStorage.setItem(this.$store.state.user.username + '#' + this.currentFriend.username, JSON.stringify(oldMsg))
+      } else {
+        var oldMsgJson = JSON.parse(oldMsg)
+        oldMsgJson.push({msg: this.msg, from: this.$store.state.user.username,time: this.getNowTime(),to:this.currentFriend.username})
+        window.localStorage.setItem(this.$store.state.user.username + '#' + this.currentFriend.username, JSON.stringify(oldMsgJson))
+      }
+    },
+    sendMsg () {
+      this.saveMsg()
+      // this.$store.state.stomp.send('/ws/chat', {}, this.msg + ';' + this.currentFriend.username)
+      this.$store.state.stomp.send('/ws/chat', {}, JSON.stringify({msg:this.msg,to:this.currentFriend.username}))
+      this.msg = ''
+      this.updateChatDiv()
+    },
+    updateChatDiv () {
+      var oldMsg = window.localStorage.getItem(this.currentUser.username + '#' + this.currentFriend.username)
+      if (oldMsg == null) {
+        this.$store.commit('updateMsgList', [])
+      } else {
+        this.$store.commit('updateMsgList', JSON.parse(oldMsg))
+      }
+    },
+    toggleFriend (hr) {
+      //切换数据
+      this.msg = ''
+      if (hr == this.currentFriend) {
+        return
+      }
+      this.currentFriend = hr
+      this.$store.commit('updateCurrentFriend', hr)
+      this.updateChatDiv()
+      this.$store.commit('removeValueDotMap', 'isDot#' + this.currentUser.username + '#' + hr.username)
+      document.getElementById('chatDiv').scrollTop = document.getElementById('chatDiv').scrollHeight
+    },
+    loadHrs () {
+      var _this = this
+      fetchHrList({
+        hrId: _this.$store.state.user.id
+      }).then(resp => {
+        _this.hrs = resp.data.obj
+      })
+    }
+  },
+  created: function () {
+    this.loadHrs()
+
   }
+}
 </script>
 <style>
   .userfaceImg {
