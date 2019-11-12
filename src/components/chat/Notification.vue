@@ -74,7 +74,7 @@
   </div>
 </template>
 <script>
-import {fetchMsgList} from '@/api/sysmsg'
+import {fetchMsgList, sendMessage, updateStatus} from '@/api/sysmsg'
 
 export default {
   data () {
@@ -86,7 +86,7 @@ export default {
       mid: -1,
       sysmsgs: [],
       msgQuery: {
-        pageNum:1,
+        pageNum: 1,
         pageSize: 15
       }
     }
@@ -112,7 +112,9 @@ export default {
         return
       }
       var _this = this
-      this.putRequest('/chat/markread', {flag: this.mid}).then(resp => {
+      updateStatus({
+        mid: this.mid
+      }).then(resp => {
         if (resp && resp.status == 200) {
           _this.initSysMsgs()
         }
@@ -133,7 +135,9 @@ export default {
     },
     allRead () {
       var _this = this
-      this.putRequest('/chat/markread', {flag: -1}).then(resp => {
+      updateStatus({
+        mid: -1
+      }).then(resp => {
         if (resp && resp.status == 200) {
           _this.$store.commit('toggleNFDot', false)
           _this.initSysMsgs()
@@ -143,16 +147,18 @@ export default {
     sendNFMsg () {
       this.dialogLoading = true
       var _this = this
-      this.postRequest('/chat/nf', {message: this.message, title: this.title}).then(resp => {
+      sendMessage({
+        message: this.message,
+        title: this.title
+      }).then(resp => {
         _this.dialogLoading = false
         if (resp && resp.status == 200) {
-          var data = resp.data
-
-          if (data.status == 'success') {
+          // var data = resp.data.obj
+          // if (data.status == 'success') {
             _this.$store.state.stomp.send('/ws/nf', {}, '')
             _this.initSysMsgs()
             _this.cancelSend()
-          }
+          // }
         }
       })
     },
